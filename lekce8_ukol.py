@@ -1,6 +1,11 @@
 import pandas
 import requests
 import yfinance as yf
+import numpy as np
+from pandas.plotting import lag_plot
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
+from math import sqrt
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.tsa.ar_model import AutoReg
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -25,6 +30,44 @@ csco_forecast = pandas.DataFrame(predictions, columns=["Prediction"])
 csco_df = csco.history(period="60d")
 csco_with_prediction = pandas.concat([csco_df, csco_forecast])
 csco_with_prediction[["Close", "Prediction"]].plot()
+plt.show()
+
+#Rozšířené zadání:
+csco_df_1 = csco_df.reset_index()
+plt.plot(csco_df_1["Date"], csco_df_1["Close"])
+plt.title("Cisco stock price over time")
+plt.xlabel("time")
+plt.ylabel("price")
+plt.show()
+
+train_data, test_data = csco_df_1[:int(len(csco_df_1) * 0.7)], csco_df_1[int(len(csco_df_1) * 0.7):]
+train_data = train_data["Close"].values
+test_data = test_data["Close"].values
+
+history = [x for x in train_data]
+model_predictions = []
+N_test_observations = len(test_data)
+
+for time_point in range(N_test_observations):
+  model = ARIMA(history, order=(4,1,0))
+  model_fit = model.fit()
+  output = model_fit.forecast()
+  yhat = output[0]
+  model_predictions.append(yhat)
+  true_test_value = test_data[time_point]
+  history.append(true_test_value)
+
+MSE_error = sqrt(mean_squared_error(test_data, model_predictions))
+print('Testing Mean Squared Error: %.3f' % MSE_error)
+
+test_set_range = csco_df_1[int(len(csco_df_1) * 0.7):].index
+plt.plot(test_set_range, model_predictions, color="blue", label="Price Prediction")
+plt.plot(test_set_range, test_data, color="red", label="Actual Price")
+
+plt.title("Cisco Prices Prediction")
+plt.xlabel("Date")
+plt.ylabel("Prices")
+plt.legend()
 plt.show()
 
 #Otázky na Python:
