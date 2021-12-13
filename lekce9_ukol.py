@@ -60,7 +60,10 @@ for k in ks:
   accuracy_scores.append(accuracy_score(y_test, y_pred))
   recall_scores.append(recall_score(y_test, y_pred))
 
-plt.plot(ks, precision_scores, f1_scores, accuracy_scores, recall_scores)
+plt.plot(ks, precision_scores)
+plt.plot(ks, f1_scores)
+plt.plot(ks, accuracy_scores)
+plt.plot(ks, recall_scores)
 plt.legend(["precision", "f1", "accuracy", "recall"])
 plt.show()
 
