@@ -29,10 +29,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 clf = DecisionTreeClassifier(max_depth=3, min_samples_leaf=1)
 clf.fit(X_train, y_train)
-print(clf.feature_importances_)
-print(oh_encoder.feature_names_in_)
-# # největší "důležitost" má proměnná "plant-stand"
-#
+for name, imp in zip(oh_encoder.get_feature_names_out(), clf.feature_importances_):
+    print(name,imp)
+
+# největší "důležitost" má proměnná "plant-stand-lt-normal"
+
 y_pred = clf.predict(X_test)
 print(f1_score(y_test, y_pred, average="weighted"))
 # #print(f1_score(y_test, y_pred, labels=[0.52350127], average="weighted"))
@@ -59,6 +60,7 @@ clf = GridSearchCV(model, param_grid={"max_depth": [1, 2, 3], "min_samples_leaf"
 clf.fit(X_train, y_train)
 print(clf.best_params_)
 print(clf.best_score_)
+sc_grid = clf.best_score_
 
 y_pred = clf.best_estimator_.predict(X_test)
 print(round(f1_score(y_test, y_pred, average="weighted"), 2))
@@ -70,6 +72,10 @@ clf = GridSearchCV(model_2, param_grid={"C": [0.001, 0.01, 0.1, 1.0]}, scoring="
 clf.fit(X_train, y_train)
 print(clf.best_params_)
 print(clf.best_score_)
+sc_lsvc = clf.best_score_
 
 y_pred = clf.best_estimator_.predict(X_test)
 print(round(f1_score(y_test, y_pred, average="weighted"), 2))
+
+plt.bar(["GridSearchCV", "LinearSVC"], [sc_grid, sc_lsvc])
+plt.show()
